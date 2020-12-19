@@ -1,4 +1,2 @@
-# spring-todo
+# Spring-Todo
 First Spring Application
-
-Spring application - todo, from tutorial.
