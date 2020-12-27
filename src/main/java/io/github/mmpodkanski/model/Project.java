@@ -51,7 +51,7 @@ public class Project {
         this.groups = group;
     }
 
-    Set<ProjectSteps> getSteps() {
+    public Set<ProjectSteps> getSteps() {
         return steps;
     }
 }
