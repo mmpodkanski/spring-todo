@@ -43,7 +43,7 @@ public class Project {
         this.steps = step;
     }
 
-    public Set<TaskGroup> getGroups() {
+    Set<TaskGroup> getGroups() {
         return groups;
     }
 

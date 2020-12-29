@@ -1,6 +1,5 @@
 package io.github.mmpodkanski.model.projection;
 
-import io.github.mmpodkanski.model.Task;
 import io.github.mmpodkanski.model.TaskGroup;
 
 import java.time.LocalDateTime;

@@ -62,7 +62,6 @@ public abstract class BaseTask {
     public void updateFrom(final BaseTask source) {
         description = source.description;
         done = source.done;
-        ;
     }
 
 

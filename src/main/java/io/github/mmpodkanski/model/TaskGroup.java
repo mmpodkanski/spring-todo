@@ -1,7 +1,6 @@
 package io.github.mmpodkanski.model;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -16,13 +15,6 @@ public class TaskGroup extends BaseTask {
     public TaskGroup() {
     }
 
-    //DTO
-    public TaskGroup(String description, Set<Task> tasks, Project project) {
-        super.TaskGroup(description);
-        this.tasks = tasks;
-        this.project = project;
-    }
-
     public Set<Task> getTasks() {
         return tasks;
     }
@@ -31,11 +23,11 @@ public class TaskGroup extends BaseTask {
         this.tasks = tasks;
     }
 
-    Project getProject() {
+    public Project getProject() {
         return project;
     }
 
-    void setProject(final Project project) {
+    public void setProject(final Project project) {
         this.project = project;
     }
 }

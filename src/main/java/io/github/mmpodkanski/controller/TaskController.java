@@ -14,13 +14,11 @@ import java.net.URI;
 import java.util.List;
 
 
-
 @RestController
 class TaskController {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
     private final TaskRepository repository;
 
-    //    @Autowired(wstrzyknij tutaj)
     TaskController(final TaskRepository repository) {
         this.repository = repository;
     }
@@ -52,7 +50,7 @@ class TaskController {
 
     @PutMapping("/tasks/{id}")
     ResponseEntity<?> updateTask(@PathVariable int id, @Valid @RequestBody Task toUpdate) {
-        if(!repository.existsById(id)) {
+        if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build(); //404
         }
         repository.findById(id)
@@ -66,7 +64,7 @@ class TaskController {
     @Transactional
     @PatchMapping("/tasks/{id}")
     public ResponseEntity<?> toggleTask(@PathVariable int id) {
-        if(!repository.existsById(id)) {
+        if (!repository.existsById(id)) {
             return ResponseEntity.notFound().build(); //404
         }
         repository.findById(id)

@@ -3,13 +3,11 @@ package io.github.mmpodkanski.logic;
 import io.github.mmpodkanski.TaskConfigurationProperties;
 import io.github.mmpodkanski.model.*;
 import io.github.mmpodkanski.model.projection.GroupReadModel;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 public class ProjectService {
     private ProjectRepository repository;
     private TaskGroupRepository taskGroupRepository;
@@ -31,13 +29,9 @@ public class ProjectService {
     }
 
     public GroupReadModel createGroup(int projectId, LocalDateTime deadline) {
-        if (taskGroupRepository.existsByDoneIsFalseAndProject_Id(projectId) && !config.getTemplate().isAllowMultipleTasks()) {
+        if (!config.getTemplate().isAllowMultipleTasks() && taskGroupRepository.existsByDoneIsFalseAndProject_Id(projectId)) {
             throw new IllegalStateException("Only one undone group from project is allowed");
         }
-//        var project = repository.findById(projectId).orElseThrow(() -> new IllegalArgumentException());
-//
-//        var taskGroup = new TaskGroup(project.getDescription(),,project);
-//        return new GroupReadModel(taskGroup);
         TaskGroup result = repository.findById(projectId)
                 .map(project -> {
                     var targetGroup = new TaskGroup();
@@ -48,7 +42,8 @@ public class ProjectService {
                                     deadline.plusDays(projectSteps.getDaysToDeadline()))
                             ).collect(Collectors.toSet())
                     );
-                    return targetGroup;
+                    targetGroup.setProject(project);
+                    return taskGroupRepository.save(targetGroup);
                 }).orElseThrow(() -> new IllegalArgumentException("Project with given id not found"));
         return new GroupReadModel(result);
     }
