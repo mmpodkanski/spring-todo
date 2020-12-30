@@ -1,0 +1,187 @@
+package io.github.mmpodkanski.logic;
+
+import io.github.mmpodkanski.TaskConfigurationProperties;
+import io.github.mmpodkanski.model.*;
+import io.github.mmpodkanski.model.projection.GroupReadModel;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class ProjectServiceTest {
+
+    @Test
+    @DisplayName("should throw IllegalStateException when configured to allow just 1 group and other undone group exists")
+    void createGroup_noMultipleGroupsConfig_And_undoneGroupsExists_throwsIllegalStateException() {
+        // given
+        TaskGroupRepository mockGroupRepository = groupRepositoryReturning(true);
+        // and
+        TaskConfigurationProperties mockConfig = ConfigurationReturning(false);
+        //system under test
+        var toTest = new ProjectService(null, mockGroupRepository, mockConfig);
+
+        // when
+        var exception = catchThrowable(() -> toTest.createGroup(0, LocalDateTime.now()));
+
+        // then
+        assertThat(exception)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("one undone group");
+    }
+
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException when configuration ok and no projects for a given id")
+    void createGroup_configurationOk_And_noProjects_throwsIllegalArgumentException() {
+        // given
+        var mockRepository = mock(ProjectRepository.class);
+        when(mockRepository.findById(anyInt())).thenReturn(Optional.empty());
+        // and
+        TaskConfigurationProperties mockConfig = ConfigurationReturning(true);
+        //system under test
+        var toTest = new ProjectService(mockRepository, null, mockConfig);
+
+        // when
+        var exception = catchThrowable(() -> toTest.createGroup(0, LocalDateTime.now()));
+
+        // then
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("id not found");
+    }
+
+    @Test
+    @DisplayName("should throw IllegalArgumentException when configured to allow just 1 group and no groups and projects for a given id")
+    void createGroup_noMultipleGroupsConfig_And_undoneGroupsNotExists_noProjects_throwsIllegalStateException() {
+        // given
+        TaskGroupRepository mockGroupRepository = groupRepositoryReturning(false);
+        // and
+        var mockRepository = mock(ProjectRepository.class);
+        when(mockRepository.findById(anyInt())).thenReturn(Optional.empty());
+        // and
+        TaskConfigurationProperties mockConfig = ConfigurationReturning(false);
+        //system under test
+        var toTest = new ProjectService(mockRepository, mockGroupRepository, mockConfig);
+
+        // when
+        var exception = catchThrowable(() -> toTest.createGroup(0, LocalDateTime.now()));
+
+        // then
+        assertThat(exception)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("id not found");
+    }
+
+    @Test
+    @DisplayName("should create a new group from project")
+    void createGroup_configurationOk_existingProject_createsAndSavesGroup() {
+        // given
+        var today = LocalDate.now().atStartOfDay();
+        // and
+        var project = projectWith("bar", Set.of(-1, -2));
+        var mockRepository = mock(ProjectRepository.class);
+        when(mockRepository.findById(anyInt()))
+                .thenReturn(Optional.of(project));
+        // and
+        InMemoryGroupRepository inMemoryGroupRepo = inMemoryGroupRepository();
+        int countBeforeCall = inMemoryGroupRepo.count();
+        // and
+        TaskConfigurationProperties mockConfig = ConfigurationReturning(true);
+        // system under test
+        var toTest = new ProjectService(mockRepository, inMemoryGroupRepo, mockConfig);
+
+        // when
+        GroupReadModel result = toTest.createGroup(1, today);
+
+        // then
+        assertThat(result.getDescription()).isEqualTo("bar");
+        assertThat(result.getDeadline()).isEqualTo(today.minusDays(1));
+        assertThat(result.getTasks()).allMatch(task -> task.getDescription().equals("foo"));
+        assertThat(countBeforeCall + 1).isEqualTo(inMemoryGroupRepo.count());
+
+
+    }
+
+    private Project projectWith(String projectDescription, Set<Integer> daysToDeadline) {
+        Set<ProjectSteps> steps = daysToDeadline.stream()
+                .map(days -> {
+                    var step = mock(ProjectSteps.class);
+                    when(step.getDescription()).thenReturn("foo");
+                    when(step.getDaysToDeadline()).thenReturn(days);
+                    return step;
+                }).collect(Collectors.toSet());
+        var result = mock(Project.class);
+        when(result.getDescription()).thenReturn(projectDescription);
+        when(result.getSteps()).thenReturn(steps);
+        return result;
+    }
+
+    private TaskGroupRepository groupRepositoryReturning(final boolean result) {
+        var mockGroupRepository = mock(TaskGroupRepository.class);
+        when(mockGroupRepository.existsByDoneIsFalseAndProject_Id(anyInt())).thenReturn(result);
+        return mockGroupRepository;
+    }
+
+
+    private TaskConfigurationProperties ConfigurationReturning(final boolean result) {
+        var mockTemplate = mock(TaskConfigurationProperties.Template.class);
+        when(mockTemplate.isAllowMultipleTasks()).thenReturn(result);
+        var mockConfig = mock(TaskConfigurationProperties.class);
+        when(mockConfig.getTemplate()).thenReturn(mockTemplate);
+        return mockConfig;
+    }
+
+    private InMemoryGroupRepository inMemoryGroupRepository() {
+        return new InMemoryGroupRepository();
+    }
+
+    private static class InMemoryGroupRepository implements TaskGroupRepository {
+        private int index = 0;
+        private Map<Integer, TaskGroup> map = new HashMap<>();
+
+        public int count() {
+            return map.values().size();
+        }
+
+        @Override
+        public List<TaskGroup> findAll() {
+            return new ArrayList<>(map.values());
+        }
+
+        @Override
+        public Optional<TaskGroup> findById(final Integer id) {
+            return Optional.ofNullable(map.get(id));
+        }
+
+        @Override
+        public TaskGroup save(final TaskGroup entity) {
+            if (entity.getId() == 0) {
+                try {
+                    var field = TaskGroup.class.getSuperclass().getDeclaredField("id");
+                    field.setAccessible(true);
+                    field.set(entity, ++index);
+                } catch (IllegalAccessException | NoSuchFieldException e) {
+                    throw new RuntimeException();
+                }
+            }
+            map.put(entity.getId(), entity);
+            return entity;
+        }
+
+        @Override
+        public boolean existsByDoneIsFalseAndProject_Id(final Integer projectId) {
+            return map.values().stream()
+                    .filter(group -> !group.isDone())
+                    .anyMatch(group -> group.getProject() != null && group.getProject().getId() == projectId);
+        }
+    }
+}
