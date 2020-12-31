@@ -17,10 +17,17 @@ public class Task extends BaseTask {
     public Task() {
     }
 
-    //DTO
     public Task(String description, LocalDateTime deadline) {
+        this(description, deadline, null);
+    }
+
+    //DTO
+    public Task(String description, LocalDateTime deadline, TaskGroup group) {
         super.Task(description);
         this.deadline = deadline;
+        if (group != null) {
+            this.group = group;
+        }
     }
 
     public LocalDateTime getDeadline() {
