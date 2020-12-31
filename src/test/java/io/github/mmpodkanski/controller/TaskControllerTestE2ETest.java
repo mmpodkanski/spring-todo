@@ -32,10 +32,24 @@ class TaskControllerTestE2ETest {
         repo.save(new Task("foo", LocalDateTime.now()));
         repo.save(new Task("bar", LocalDateTime.now()));
 
-        //when
+        // when
         Task[] result = restTemplate.getForObject("http://localhost:" + port + "/tasks", Task[].class);
 
-        //then
+        // then
         assertThat(result).hasSize(initial + 2);
+    }
+
+    @Test
+    @DisplayName("should return task from id")
+    void httpGet_returnsTask() {
+        // given
+        Task task = repo.save(new Task("foo", LocalDateTime.now()));
+        int idTask = task.getId();
+
+        // when
+        Task result = restTemplate.getForObject("http://localhost:" + port + "/tasks/" + idTask, Task.class);
+
+        // then
+        assertThat(result.getId()).isEqualTo(idTask);
     }
 }
