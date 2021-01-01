@@ -41,7 +41,7 @@ class TaskControllerTestE2ETest {
 
     @Test
     @DisplayName("should return task from id")
-    void httpGet_returnsTask() {
+    void httpGet_returnsGivenTask() {
         // given
         Task task = repo.save(new Task("foo", LocalDateTime.now()));
         int idTask = task.getId();
@@ -50,6 +50,40 @@ class TaskControllerTestE2ETest {
         Task result = restTemplate.getForObject("http://localhost:" + port + "/tasks/" + idTask, Task.class);
 
         // then
-        assertThat(result.getId()).isEqualTo(idTask);
+        assertThat(result)
+                .hasFieldOrPropertyWithValue("id", idTask)
+                .isInstanceOf(Task.class);
+    }
+
+    @Test
+    @DisplayName("should create task")
+    void httpPost_createTask() {
+        // given
+        int initial = repo.findAll().size();
+        Task toCreate = new Task("example", LocalDateTime.now());
+        restTemplate.postForObject("http://localhost:" + port + "/tasks", toCreate, Task.class);
+        initial++;
+
+        // when
+        Task result = restTemplate.getForObject("http://localhost:" + port + "/tasks/" + initial, Task.class);
+
+        // then
+        assertThat(result.getId()).isEqualTo(initial);
+    }
+
+    @Test
+    @DisplayName("should update created task")
+    void httpPut_updateTask() {
+        // given
+        Task beforeUpdate = new Task("beforeUpdate", LocalDateTime.now());
+        Task toUpdate = new Task("afterUpdate", LocalDateTime.now());
+        int idTask = repo.save(beforeUpdate).getId();
+        restTemplate.put("http://localhost:" + port + "/tasks/" + idTask, toUpdate);
+
+        // when
+        Task result = restTemplate.getForObject("http://localhost:" + port + "/tasks/" + idTask, Task.class);
+
+        // then
+        assertThat(result.getDescription()).isEqualTo(toUpdate.getDescription());
     }
 }

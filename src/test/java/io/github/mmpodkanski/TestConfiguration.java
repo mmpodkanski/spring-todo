@@ -1,5 +1,6 @@
 package io.github.mmpodkanski;
 
+import io.github.mmpodkanski.model.BaseTask;
 import io.github.mmpodkanski.model.Task;
 import io.github.mmpodkanski.model.TaskRepository;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -64,8 +66,15 @@ class TestConfiguration {
 
             @Override
             public Task save(final Task entity) {
-                int key = tasks.size();
-                tasks.put(tasks.size(), entity);
+                int key = tasks.size() + 1;
+                try {
+                    var field = BaseTask.class.getDeclaredField("id");
+                    field.setAccessible(true);
+                    field.set(entity, key);
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+                tasks.put(key, entity);
                 return tasks.get(key);
             }
         };
