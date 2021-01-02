@@ -35,11 +35,11 @@ public class Project {
         return description;
     }
 
-    void setDescription(final String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
-    void setSteps(final Set<ProjectSteps> step) {
+    public void setSteps(final Set<ProjectSteps> step) {
         this.steps = step;
     }
 

@@ -38,7 +38,7 @@ public class Task extends BaseTask {
         this.deadline = deadline;
     }
 
-    public TaskGroup getGroup() {
+    TaskGroup getGroup() {
         return group;
     }
 

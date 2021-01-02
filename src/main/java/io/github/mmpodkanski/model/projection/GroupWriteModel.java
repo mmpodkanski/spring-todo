@@ -1,5 +1,6 @@
 package io.github.mmpodkanski.model.projection;
 
+import io.github.mmpodkanski.model.Project;
 import io.github.mmpodkanski.model.TaskGroup;
 
 import java.util.Set;
@@ -9,7 +10,7 @@ public class GroupWriteModel {
     private String description;
     private Set<GroupTaskWriteModel> tasks;
 
-    public TaskGroup toGroup() {
+    public TaskGroup toGroup(final Project project) {
         var result = new TaskGroup();
         result.setDescription(description);
         result.setTasks(
@@ -17,6 +18,7 @@ public class GroupWriteModel {
                         .map(source -> source.toTask(result))
                         .collect(Collectors.toSet())
         );
+        result.setProject(project);
         return result;
     }
 

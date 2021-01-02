@@ -1,6 +1,7 @@
 package io.github.mmpodkanski.adapter;
 
 import io.github.mmpodkanski.model.Project;
+import io.github.mmpodkanski.model.Task;
 import io.github.mmpodkanski.model.TaskGroup;
 import io.github.mmpodkanski.model.TaskGroupRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,5 @@ interface SqlTaskGroupRepository extends TaskGroupRepository, JpaRepository<Task
 
     @Override
     boolean existsByDoneIsFalseAndProject_Id(Integer projectId);
+
 }

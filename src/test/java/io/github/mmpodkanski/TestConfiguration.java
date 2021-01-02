@@ -13,6 +13,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -62,6 +64,16 @@ class TestConfiguration {
             @Override
             public List<Task> findByDone(final boolean done) {
                 return null;
+            }
+
+            @Override
+            public List<Task> findAllByGroup_Id(int idGroup) {
+                return List.of();
+            }
+
+            @Override
+            public List<Task> findTasksByDoneFalseAndDeadlineIsLessThanOrDeadlineIsNullAndDoneFalse(final LocalDateTime date) {
+                return List.of();
             }
 
             @Override

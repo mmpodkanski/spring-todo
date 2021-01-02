@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,12 +28,6 @@ class TaskController {
     TaskController(final TaskRepository repository, TaskService service) {
         this.repository = repository;
         this.service = service;
-    }
-
-    @PostMapping
-    ResponseEntity<Task> createTask(@Valid @RequestBody Task toCreate) {
-        Task result = repository.save(toCreate);
-        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
     }
 
     @GetMapping(params = {"!sort", "!page", "!size"})
@@ -53,11 +49,23 @@ class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/today")
+    ResponseEntity<List<Task>> readTodayTasks() {
+        return ResponseEntity.ok(repository.findTasksByDoneFalseAndDeadlineIsLessThanOrDeadlineIsNullAndDoneFalse(LocalDate.now().plusDays(1).atTime(0, 0)));
+    }
+
     @GetMapping("/search/done")
     ResponseEntity<List<Task>> readDoneTasks(@RequestParam(defaultValue = "true") boolean state) {
         return ResponseEntity.ok(
                 repository.findByDone(state)
         );
+    }
+
+    @PostMapping
+    ResponseEntity<Task> createTask(@Valid @RequestBody Task toCreate) {
+        logger.warn("Creating a new task");
+        Task result = repository.save(toCreate);
+        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
     }
 
     @PutMapping("/{id}")
