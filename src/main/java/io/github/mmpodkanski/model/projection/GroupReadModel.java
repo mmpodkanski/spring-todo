@@ -3,6 +3,7 @@ package io.github.mmpodkanski.model.projection;
 import io.github.mmpodkanski.model.TaskGroup;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ public class GroupReadModel {
         description = source.getDescription();
         source.getTasks().stream()
                 .map(task1 -> task1.getDeadline())
+                .filter(obj -> Objects.nonNull(obj))
                 .max(LocalDateTime::compareTo)
                 .ifPresent(date -> deadline = date);
         tasks = source.getTasks().stream()

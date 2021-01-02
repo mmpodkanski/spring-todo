@@ -1,10 +1,11 @@
 package io.github.mmpodkanski.model.projection;
 
 import io.github.mmpodkanski.model.Project;
-import io.github.mmpodkanski.model.ProjectSteps;
+import io.github.mmpodkanski.model.ProjectStep;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -12,7 +13,11 @@ public class ProjectWriteModel {
     @NotBlank(message = "Project's description must not be empty")
     private String description;
     @Valid
-    private List<ProjectSteps> steps;
+    private List<ProjectStep> steps = new ArrayList<>();
+
+    public ProjectWriteModel() {
+        steps.add(new ProjectStep());
+    }
 
     public String getDescription() {
         return description;
@@ -22,11 +27,11 @@ public class ProjectWriteModel {
         this.description = description;
     }
 
-    public List<ProjectSteps> getSteps() {
+    public List<ProjectStep> getSteps() {
         return steps;
     }
 
-    public void setSteps(final List<ProjectSteps> steps) {
+    public void setSteps(final List<ProjectStep> steps) {
         this.steps = steps;
     }
 

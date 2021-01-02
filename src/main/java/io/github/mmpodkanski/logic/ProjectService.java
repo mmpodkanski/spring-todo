@@ -17,13 +17,13 @@ public class ProjectService {
     private ProjectRepository repository;
     private TaskGroupRepository taskGroupRepository;
     private TaskConfigurationProperties config;
-    private TaskGroupService taskGruopService;
+    private TaskGroupService taskGroupService;
 
 
     public ProjectService(final ProjectRepository repository, final TaskGroupRepository taskGroupRepository, final TaskGroupService taskGruopService, final TaskConfigurationProperties config) {
         this.repository = repository;
         this.taskGroupRepository = taskGroupRepository;
-        this.taskGruopService = taskGruopService;
+        this.taskGroupService = taskGruopService;
         this.config = config;
     }
 
@@ -33,6 +33,10 @@ public class ProjectService {
 
     public Project save(final ProjectWriteModel toSave) {
         return repository.save(toSave.toProject());
+    }
+
+    public void delete(int id) {
+        repository.deleteById(id);
     }
 
     public GroupReadModel createGroup(int projectId, LocalDateTime deadline) {
@@ -52,7 +56,7 @@ public class ProjectService {
                                     }
                             ).collect(Collectors.toSet())
                     );
-                    return taskGruopService.createGroup(targetGroup, project);
+                    return taskGroupService.createGroup(targetGroup, project);
                 }).orElseThrow(() -> new IllegalArgumentException("Project with given id not found"));
     }
 }

@@ -7,19 +7,19 @@ import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "project_steps")
-public class ProjectSteps {
+public class ProjectStep {
     @Id
     @GeneratedValue(generator = "inc")
     @GenericGenerator(name = "inc", strategy = "increment")
     private int id;
-    @NotBlank(message = "Project's description must not be empty")
+    @NotBlank(message = "Project steps description must not be empty")
     private String description;
     private int daysToDeadline;
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
 
-    public ProjectSteps() {
+    public ProjectStep() {
     }
 
     public int getId() {
