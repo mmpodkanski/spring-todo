@@ -11,6 +11,7 @@ import io.github.mmpodkanski.model.projection.ProjectWriteModel;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ProjectService {
@@ -35,7 +36,11 @@ public class ProjectService {
         return repository.save(toSave.toProject());
     }
 
-    public void delete(int id) {
+    public Project readProject(int id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public void deleteProject(int id) {
         repository.deleteById(id);
     }
 
@@ -51,10 +56,10 @@ public class ProjectService {
                             .map(projectStep -> {
                                         var task = new GroupTaskWriteModel();
                                         task.setDescription(projectStep.getDescription());
-                                        task.setDeadline(deadline.plusDays(projectStep.getDaysToDeadline()));
+                                        task.setDeadline(Objects.requireNonNullElseGet(deadline, LocalDateTime::now).plusDays(projectStep.getDaysToDeadline()));
                                         return task;
                                     }
-                            ).collect(Collectors.toSet())
+                            ).collect(Collectors.toList())
                     );
                     return taskGroupService.createGroup(targetGroup, project);
                 }).orElseThrow(() -> new IllegalArgumentException("Project with given id not found"));

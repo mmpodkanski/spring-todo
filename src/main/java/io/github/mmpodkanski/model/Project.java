@@ -4,6 +4,9 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,8 +19,8 @@ public class Project {
     @NotBlank(message = "Project's description must not be empty")
     private String description;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
-    private Set<ProjectStep> steps;
-    @OneToMany(mappedBy = "project")
+    private List<ProjectStep> steps;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
     private Set<TaskGroup> groups;
 
     public Project() {
@@ -39,7 +42,7 @@ public class Project {
         this.description = description;
     }
 
-    public void setSteps(final Set<ProjectStep> step) {
+    public void setSteps(final List<ProjectStep> step) {
         this.steps = step;
     }
 
@@ -51,7 +54,7 @@ public class Project {
         this.groups = group;
     }
 
-    public Set<ProjectStep> getSteps() {
+    public List<ProjectStep> getSteps() {
         return steps;
     }
 }

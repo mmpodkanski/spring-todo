@@ -7,6 +7,7 @@ import io.github.mmpodkanski.model.TaskRepository;
 import io.github.mmpodkanski.model.projection.GroupReadModel;
 import io.github.mmpodkanski.model.projection.GroupWriteModel;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,11 @@ public class TaskGroupService {
                 .map(taskGroup -> new GroupReadModel(taskGroup))
                 .collect(Collectors.toList());
     }
+
+    public void deleteGroup(int groupId) {
+        repository.deleteById(groupId);
+    }
+
 
     public void toggleGroup(int groupId) {
         if (taskRepository.existsByDoneIsFalseAndGroup_Id(groupId)) {

@@ -6,7 +6,7 @@ import io.github.mmpodkanski.model.ProjectStep;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
 
 public class ProjectWriteModel {
@@ -39,7 +39,8 @@ public class ProjectWriteModel {
         var result = new Project();
         result.setDescription(description);
         steps.forEach(step -> step.setProject(result));
-        result.setSteps(new HashSet<>(steps));
+        steps.sort(Comparator.comparing(ProjectStep::getDaysToDeadline));
+        result.setSteps(new ArrayList<>(steps));
         return result;
     }
 }
