@@ -20,7 +20,7 @@ That simple application allows you to operate on your daily tasks.
 2. Open project in IntelliJ:
 - File->New->Project from Version Control then past clone link
 - File->Open then find and open downloaded zip
-3. Run application in **monolith** package
+3. Run TodoAppApplication.java in main package
 
 OR
 
